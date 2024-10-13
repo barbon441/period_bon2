@@ -14,125 +14,101 @@ const HomePage = () => {
   const [selectedSymptoms, setSelectedSymptoms] = useState({ flow: '', mood: [], symptoms: [] });
   const [currentDayOfPeriod, setCurrentDayOfPeriod] = useState(1); // สำหรับเก็บวันที่ในรอบประจำเดือน
   const [isSaved, setIsSaved] = useState(false);
-  const [isFirstDay, setIsFirstDay] = useState(true); // ตรวจสอบว่าเป็นวันแรกหรือไม่
   const [nextPeriodDate, setNextPeriodDate] = useState(null); // บันทึกวันที่ประจำเดือนครั้งถัดไป
   const [lastPeriodDay, setLastPeriodDay] = useState(null); // เก็บวันสุดท้ายของการเป็นประจำเดือน
 
   // ฟังก์ชันจัดการการเปลี่ยนแปลงวันที่
-// ฟังก์ชันจัดการการเปลี่ยนแปลงวันที่
-const handleDateChange = (newDate) => {
-  setSelectedDate(newDate);
-
-  // ตรวจสอบว่ามีการบันทึกวันที่นี้แล้วหรือไม่
-  const existingIndex = cycleDates.findIndex(
-    (loggedDate) => loggedDate.getTime() === newDate.getTime()
-  );
-
-  if (existingIndex !== -1) {
-    // ถ้ามีวันที่นี้ใน cycleDates ให้แสดงข้อความวันที่ตามลำดับที่บันทึกไว้
-    setCurrentDayOfPeriod(existingIndex + 1);
-    setIsSaved(true); // แสดงข้อมูลว่าบันทึกแล้ว
-  } else {
-    // ถ้าไม่มีวันที่นี้ให้รีเซ็ตสถานะการบันทึก
-    setIsSaved(false);
-  }
-};
+  const handleDateChange = (newDate) => {
+    setSelectedDate(newDate);
+    setIsSaved(false); // รีเซ็ตสถานะเมื่อเปลี่ยนวันที่
+  };
 
   // ฟังก์ชันสำหรับบันทึกวันที่ที่เลือก
   const handleLogCycle = (date) => {
-    const updatedCycleDates = [...cycleDates, date];
-    setCycleDates(updatedCycleDates);
-    localStorage.setItem('cycleDates', JSON.stringify(updatedCycleDates)); // บันทึกข้อมูลใน localStorage
-    setIsSaved(true);
-    setCurrentDayOfPeriod(cycleDates.length + 1);
-    setIsFirstDay(false);
-  
-    if (isFirstDay) {
-      const calculatedNextPeriod = calculateNextPeriod(date);
-      setNextPeriodDate(calculatedNextPeriod);
-      calculatePredictedDates(date);
-      const lastDayOfPeriod = calculateLastPeriodDay(date);
-      setLastPeriodDay(lastDayOfPeriod);
+    const dateString = date.toDateString();
+
+    // ตรวจสอบว่าบันทึกวันต่อเนื่องหรือไม่
+    if (!cycleDates.some(cycleDate => cycleDate.toDateString() === dateString)) {
+      if (cycleDates.length > 0) {
+        const lastLoggedDate = new Date(cycleDates[cycleDates.length - 1]);
+        const diffDays = Math.ceil(Math.abs(date - lastLoggedDate) / (1000 * 60 * 60 * 24));
+
+        // ถ้าบันทึกต่อเนื่อง
+        if (diffDays === 1) {
+          const updatedCycleDates = [...cycleDates, date];
+          setCycleDates(updatedCycleDates);
+          setCurrentDayOfPeriod(updatedCycleDates.length); // แสดงวันประจำเดือนวันที่ X
+
+          // คำนวณวันประจำเดือนถัดไป
+          const calculatedNextPeriod = calculateNextPeriod(date);
+          setNextPeriodDate(calculatedNextPeriod);
+        } else {
+          // ถ้าไม่ต่อเนื่อง รีเซ็ตข้อมูล
+          setCycleDates([date]);
+          setCurrentDayOfPeriod(1); // เริ่มต้นที่ประจำเดือนวันที่ 1
+          const calculatedNextPeriod = calculateNextPeriod(date);
+          setNextPeriodDate(calculatedNextPeriod);
+
+          // คำนวณวันคาดการณ์ใหม่
+          calculatePredictedDates(date);
+        }
+      } else {
+        // บันทึกครั้งแรก
+        setCycleDates([date]);
+        setCurrentDayOfPeriod(1);
+        const calculatedNextPeriod = calculateNextPeriod(date);
+        setNextPeriodDate(calculatedNextPeriod);
+
+        // คำนวณวันคาดการณ์จากวันแรก
+        calculatePredictedDates(date);
+      }
+      setIsSaved(true);
     }
   };
-  // ฟังก์ชันคำนวณวันสุดท้ายของการมีประจำเดือน
-  const calculateLastPeriodDay = (startDate) => {
-    const periodLength = 5; // กำหนดให้ประจำเดือนอยู่ 5 วัน
-    const lastDay = new Date(startDate);
-    lastDay.setDate(startDate.getDate() + periodLength - 1); // วันสุดท้ายคือวันที่ 5 หลังจากวันแรก
-    return lastDay;
-  };
 
-  // ฟังก์ชันคำนวณวันที่ประจำเดือนจะมาอีก
+  // ฟังก์ชันคำนวณวันประจำเดือนถัดไป
   const calculateNextPeriod = (startDate) => {
     const cycleLength = 28; // รอบประจำเดือนเฉลี่ย 28 วัน
-    const lastPeriodDay = calculateLastPeriodDay(startDate); // เอาวันสุดท้ายของประจำเดือน (วันที่ 5)
-    const nextPeriodDate = new Date(lastPeriodDay);
-    nextPeriodDate.setDate(lastPeriodDay.getDate() + 1 + cycleLength); // บวก 1 เพื่อเริ่มจากวันที่ 6 แล้วเพิ่ม 28 วันสำหรับรอบถัดไป
+    const nextPeriodDate = new Date(startDate);
+    nextPeriodDate.setDate(startDate.getDate() + cycleLength);
     return nextPeriodDate;
   };
 
   // ฟังก์ชันคำนวณวันคาดการณ์ 5 วันหลังจากวันแรก
   const calculatePredictedDates = (startDate) => {
     const predicted = [];
-    for (let i = 0; i < 5; i++) { // คำนวณ 5 วัน (รวมวันแรก)
+    for (let i = 0; i < 5; i++) { 
       const predictedDate = new Date(startDate);
       predictedDate.setDate(startDate.getDate() + i);
       predicted.push(predictedDate);
     }
-    setPredictedDates(predicted); // บันทึกวันคาดการณ์ทั้ง 5 วัน
+    setPredictedDates(predicted);
   };
 
-  // ฟังก์ชันคำนวณจำนวนวันที่เหลือจากวันที่เลือกไปถึงวันประจำเดือนรอบถัดไป
+  // ฟังก์ชันคำนวณจำนวนวันที่เหลือจากวันนี้ถึงวันประจำเดือนถัดไป
   const calculateDaysUntilNextPeriod = () => {
     if (!nextPeriodDate) return null;
-    const today = selectedDate || new Date(); // ใช้วันที่ที่เลือกจากผู้ใช้หรือวันที่ปัจจุบัน
+    const today = new Date(); // ใช้วันที่ปัจจุบัน
     const diffTime = Math.abs(nextPeriodDate - today);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // แปลงเป็นจำนวนวัน
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
   };
 
-  // ฟังก์ชันตรวจสอบว่าวันที่เลือกเป็นวันที่ประจำเดือนหรือไม่
-  const isPeriodDay = predictedDates.some(predictedDate => predictedDate.toDateString() === selectedDate.toDateString());
-
-  const handleLogSymptoms = () => setShowSymptomForm(true);
-
+  // ฟังก์ชันจัดการการเปลี่ยนแปลงของอาการที่บันทึก
   const handleSymptomChange = (e) => {
     const { name, value, checked } = e.target;
-    setSelectedSymptoms((prev) => ({
-      ...prev,
+    setSelectedSymptoms((prevSymptoms) => ({
+      ...prevSymptoms,
       [name]: name === 'flow' ? value : checked
-        ? [...prev[name], value]
-        : prev[name].filter((item) => item !== value),
+        ? [...prevSymptoms[name], value]
+        : prevSymptoms[name].filter((symptom) => symptom !== value)
     }));
   };
-
-  const handleSaveSymptoms = () => {
-    setDailySymptoms({ ...dailySymptoms, [selectedDate]: selectedSymptoms });
-    setShowSymptomForm(false);
-    setShowPopup(true);
-    setTimeout(() => setShowPopup(false), 2000);
-  };
-
-  // ฟังก์ชันแปลงวันที่เป็นรูปแบบภาษาไทย
-  const formatThaiDate = (date) => {
-    const months = [
-      "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
-      "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
-    ];
-    const day = date.getDate();
-    const month = months[date.getMonth()];
-    const year = date.getFullYear() + 543;
-    return `${day} ${month} ${year}`;
-  };
-
-  // ตรวจสอบว่าวันนี้อยู่ในช่วงของการมีประจำเดือนหรือไม่
-  const isInPeriod = currentDayOfPeriod <= 5; // กำหนดให้ช่วงประจำเดือนอยู่ที่ 5 วัน
 
   return (
     <div className="home-page-container">
       <div className="period-info-container">
-        {isSaved && isInPeriod ? (
+        {isSaved && (
           <>
             <div className="period-info-title period-info-title-small">
               ประจำเดือน:
@@ -141,23 +117,21 @@ const handleDateChange = (newDate) => {
               วันที่ {currentDayOfPeriod}
             </div>
           </>
-        ) : (
-          <>
-            {nextPeriodDate && !isPeriodDay && ( // ไม่แสดงข้อความนี้หากเป็นวันประจำเดือน
-              <div className="period-info-days">
-                ประจำเดือนจะมาอีก: {formatThaiDate(nextPeriodDate)}
-              </div>
-            )}
-            {nextPeriodDate && !isPeriodDay && ( // ไม่แสดงจำนวนวันหากเป็นวันประจำเดือน
-              <div className="period-info-days">
-                จากวันนี้ถึงวันที่ประจำเดือนจะมาอีก เป็นเวลา: {calculateDaysUntilNextPeriod()} วัน
-              </div>
-            )}
-          </>
+        )}
+
+        {isSaved && nextPeriodDate && (
+          <div className="period-info-days">
+            ประจำเดือนจะมาอีก: {nextPeriodDate.toLocaleDateString('th-TH')}
+          </div>
+        )}
+
+        {isSaved && nextPeriodDate && (
+          <div className="period-info-days">
+            จากวันนี้ถึงวันที่ประจำเดือนจะมาอีก: {calculateDaysUntilNextPeriod()} วัน
+          </div>
         )}
       </div>
 
-      {/* ปฏิทินแสดงวันที่ */}
       <h3 className="calendar-title">ปฏิทินรอบเดือน</h3>
       <div className="calendar-container">
         <Calendar 
@@ -168,7 +142,6 @@ const handleDateChange = (newDate) => {
         />
       </div>
 
-      {/* บันทึกวันที่รอบเดือน */}
       <div className="save-button-container">
         <SaveButton 
           selectedDate={selectedDate}
@@ -182,7 +155,7 @@ const handleDateChange = (newDate) => {
         <div className="insights-grid">
           <div className="insight-card">
             <div>บันทึกอาการของคุณ</div>
-            <div className="add-symptom-button" onClick={handleLogSymptoms}>+</div>
+            <div className="add-symptom-button" onClick={() => setShowSymptomForm(true)}>+</div>
           </div>
         </div>
       </div>
@@ -190,18 +163,14 @@ const handleDateChange = (newDate) => {
       {showSymptomForm && (
         <SymptomForm
           selectedSymptoms={selectedSymptoms}
-          handleSymptomChange={handleSymptomChange}
-          handleSaveSymptoms={handleSaveSymptoms}
+          handleSymptomChange={handleSymptomChange}  // เรียกใช้ฟังก์ชันที่เพิ่งเพิ่ม
+          handleSaveSymptoms={() => {
+            setDailySymptoms({ ...dailySymptoms, [selectedDate]: selectedSymptoms });
+            setShowSymptomForm(false);
+            setShowPopup(true);
+            setTimeout(() => setShowPopup(false), 2000);
+          }}
         />
-      )}
-
-      {dailySymptoms[selectedDate] && (
-        <div className="symptom-summary-container">
-          <h3 className="symptom-summary-title">สรุปอาการของคุณ</h3>
-          <p className="symptom-summary-item">ปริมาณประจำเดือน: {dailySymptoms[selectedDate].flow || 'ไม่ได้ระบุ'}</p>
-          <p className="symptom-summary-item">อารมณ์: {dailySymptoms[selectedDate].mood.join(', ') || 'ไม่ได้ระบุ'}</p>
-          <p className="symptom-summary-item">อาการ: {dailySymptoms[selectedDate].symptoms.join(', ') || 'ไม่ได้ระบุ'}</p>
-        </div>
       )}
 
       {showPopup && (
