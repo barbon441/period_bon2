@@ -1,0 +1,225 @@
+.home-page-container {
+  padding: 20px;
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-title {
+  font-size: 1.25rem;
+}
+
+.period-info-container {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.period-info-title {
+  font-size: 1.125rem;
+  font-weight: bold;
+}
+
+.period-info-days {
+  font-size: 3.75rem;
+  font-weight: bold;
+  color: #ec4899; /* Pink color */
+}
+
+.pregnancy-chance {
+  font-size: 0.875rem;
+  margin-top: 8px;
+}
+
+.calendar-title {
+  font-size: 1.125rem;
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+.calendar-container {
+  margin-top: 20px;
+}
+
+.selected-date-container {
+  margin-top: 20px;
+}
+
+.save-button-container {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.cycle-dates-container {
+  margin-top: 40px;
+}
+
+.cycle-dates-title {
+  font-size: 1.125rem;
+  font-weight: bold;
+}
+
+.daily-insights-container {
+  margin-top: 40px;
+}
+
+.daily-insights-title {
+  font-size: 1.125rem;
+  font-weight: bold;
+}
+
+.insights-grid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.insight-card {
+  background-color: #ffffff;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.add-symptom-button {
+  background-color: #ec4899; /* Pink color */
+  color: #ffffff;
+  border-radius: 9999px;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.symptom-form-container {
+  margin-top: 20px;
+}
+
+.symptom-form-title {
+  font-size: 1.125rem;
+  font-weight: bold;
+}
+
+.symptom-option {
+  display: block;
+  margin-top: 8px;
+}
+
+.symptom-input {
+  margin-right: 8px;
+}
+
+.symptom-category-title {
+  font-weight: bold;
+  margin-top: 16px;
+}
+
+.save-symptom-button {
+  background-color: #ec4899; /* Pink color */
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  margin-top: 16px;
+}
+
+.symptom-summary-container {
+  margin-top: 40px;
+  background-color: #f3f4f6;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.symptom-summary-title {
+  font-size: 1.125rem;
+  font-weight: bold;
+}
+
+.symptom-summary-item {
+  margin-top: 8px;
+}
+
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.popup-content {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.popup-title {
+  font-size: 1.125rem;
+  font-weight: bold;
+}
+.period-info-title {
+  color: #FF007F;
+  font-weight: bold;
+}
+
+.period-info-title-large {
+  font-size: 28px;
+}
+
+.period-info-title-small {
+  font-size: 24px;
+}
+
+.period-info-days {
+  color: #FF007F;
+  font-size: 14px;
+}
+
+.save-button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+  padding: 10px;
+}
+
+.calendar-day {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.bg-gray-300 {
+  background-color: #e2e8f0;
+}
+
+/* วงกลมสำหรับวันที่บันทึก */
+.circle-logged {
+  background-color: #FF007F;
+  color: white;
+  border-radius: 50%;
+}
+
+/* วงกลมเส้นปะสำหรับวันที่คาดการณ์ */
+.circle-predicted {
+  border: 2px dashed #FF007F;
+  color: #FF007F;
+  border-radius: 50%;
+}

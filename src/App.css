@@ -1,0 +1,107 @@
+/* Container ของ Calendar */
+.calendar-container {
+  padding: 24px;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  max-width: 800px;
+  margin: 20px auto;
+}
+
+
+/* สไตล์สำหรับหัวของ Calendar */
+.calendar-header {
+  display: flex;
+  justify-content: space-between; /* จัดให้องค์ประกอบทั้งหมดมีระยะห่างสมดุล */
+  align-items: center; /* จัดให้องค์ประกอบทั้งหมดอยู่ในระดับเดียวกัน */
+  gap: 16px;
+  padding-bottom: 16px; /* เพิ่มช่องว่างระหว่างส่วนหัวกับวันที่ */
+  position: relative;
+}
+
+/* สไตล์ของไอคอนผู้ใช้ */
+.user-icon {
+  width: 56px;  /* ลดขนาดของไอคอนให้สมดุลกับส่วนประกอบอื่น ๆ */
+  height: 56px;
+  border-radius: 16px;
+  object-fit: cover;
+}
+
+/* สไตล์สำหรับวันที่ */
+.calendar-date {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center; /* จัดให้วันที่อยู่ตรงกลาง */
+  flex-grow: 1;  /* ทำให้วันที่ขยายพื้นที่ได้เต็มที่เพื่อให้สมดุล */
+}
+
+/* ปุ่มปฏิทิน */
+.calendar-button {
+  background-color: #e2e8f0;
+  padding: 12px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+}
+
+/* ไอคอนปฏิทิน */
+.calendar-icon {
+  font-size: 1.5rem;
+}
+
+/* สไตล์สำหรับวันในสัปดาห์ */
+.calendar-days {
+  margin-top: 24px; /* เพิ่มระยะห่างระหว่างส่วนหัวกับวันที่ */
+}
+
+/* ปุ่มเลื่อนสัปดาห์ */
+.week-nav-button {
+  background-color: #e2e8f0;
+  padding: 12px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+}
+
+.week-nav-button:hover {
+  background-color: #d1d5db; /* เพิ่มเอฟเฟกต์ hover */
+}
+
+/* แสดงวันในสัปดาห์ */
+.calendar-days-list {
+  display: flex;
+  gap: 16px; /* ปรับช่องว่างระหว่างวันให้สมดุลขึ้น */
+  justify-content: center;
+  align-items: center;
+}
+
+/* สไตล์ของแต่ละวัน */
+.calendar-day {
+  padding: 12px;
+  cursor: pointer;
+  border-radius: 50%;
+  text-align: center;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.calendar-day:hover {
+  background-color: #f0f0f0; /* เพิ่มเอฟเฟกต์ hover เพื่อเน้นวันที่ */
+  transform: scale(1.1); /* ขยายขนาดเล็กน้อยเมื่อ hover */
+}
+
+.selected-day {
+  background-color: #4f46e5; /* เปลี่ยนสีเป็นสีม่วงเพื่อให้เด่นชัดขึ้น */
+  color: white;
+  font-weight: bold;
+}
