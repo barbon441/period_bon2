@@ -19,28 +19,42 @@ const HomePage = () => {
   const [lastPeriodDay, setLastPeriodDay] = useState(null); // เก็บวันสุดท้ายของการเป็นประจำเดือน
 
   // ฟังก์ชันจัดการการเปลี่ยนแปลงวันที่
-  const handleDateChange = (newDate) => {
-    setSelectedDate(newDate);
-    setIsSaved(false); // รีเซ็ตสถานะเมื่อเปลี่ยนวันที่
-  };
+// ฟังก์ชันจัดการการเปลี่ยนแปลงวันที่
+const handleDateChange = (newDate) => {
+  setSelectedDate(newDate);
+
+  // ตรวจสอบว่ามีการบันทึกวันที่นี้แล้วหรือไม่
+  const existingIndex = cycleDates.findIndex(
+    (loggedDate) => loggedDate.getTime() === newDate.getTime()
+  );
+
+  if (existingIndex !== -1) {
+    // ถ้ามีวันที่นี้ใน cycleDates ให้แสดงข้อความวันที่ตามลำดับที่บันทึกไว้
+    setCurrentDayOfPeriod(existingIndex + 1);
+    setIsSaved(true); // แสดงข้อมูลว่าบันทึกแล้ว
+  } else {
+    // ถ้าไม่มีวันที่นี้ให้รีเซ็ตสถานะการบันทึก
+    setIsSaved(false);
+  }
+};
 
   // ฟังก์ชันสำหรับบันทึกวันที่ที่เลือก
   const handleLogCycle = (date) => {
-    setCycleDates([...cycleDates, date]);
+    const updatedCycleDates = [...cycleDates, date];
+    setCycleDates(updatedCycleDates);
+    localStorage.setItem('cycleDates', JSON.stringify(updatedCycleDates)); // บันทึกข้อมูลใน localStorage
     setIsSaved(true);
-    setCurrentDayOfPeriod(cycleDates.length + 1); // เพิ่มลำดับวันในรอบประจำเดือน
-    setIsFirstDay(false); // หลังจากบันทึกวันแรกแล้ว จะไม่ใช่วันแรกอีกต่อไป
-
-    // คำนวณวันประจำเดือนถัดไปเฉพาะเมื่อเป็นวันแรก
+    setCurrentDayOfPeriod(cycleDates.length + 1);
+    setIsFirstDay(false);
+  
     if (isFirstDay) {
       const calculatedNextPeriod = calculateNextPeriod(date);
-      setNextPeriodDate(calculatedNextPeriod); // เก็บวันที่คำนวณได้
-      calculatePredictedDates(date); // คำนวณวันคาดการณ์สำหรับ 5 วัน
-      const lastDayOfPeriod = calculateLastPeriodDay(date); // คำนวณวันสุดท้ายของประจำเดือน
-      setLastPeriodDay(lastDayOfPeriod); // บันทึกวันสุดท้ายของประจำเดือน
+      setNextPeriodDate(calculatedNextPeriod);
+      calculatePredictedDates(date);
+      const lastDayOfPeriod = calculateLastPeriodDay(date);
+      setLastPeriodDay(lastDayOfPeriod);
     }
   };
-
   // ฟังก์ชันคำนวณวันสุดท้ายของการมีประจำเดือน
   const calculateLastPeriodDay = (startDate) => {
     const periodLength = 5; // กำหนดให้ประจำเดือนอยู่ 5 วัน
@@ -77,6 +91,9 @@ const HomePage = () => {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // แปลงเป็นจำนวนวัน
     return diffDays;
   };
+
+  // ฟังก์ชันตรวจสอบว่าวันที่เลือกเป็นวันที่ประจำเดือนหรือไม่
+  const isPeriodDay = predictedDates.some(predictedDate => predictedDate.toDateString() === selectedDate.toDateString());
 
   const handleLogSymptoms = () => setShowSymptomForm(true);
 
@@ -126,12 +143,12 @@ const HomePage = () => {
           </>
         ) : (
           <>
-            {nextPeriodDate && (
+            {nextPeriodDate && !isPeriodDay && ( // ไม่แสดงข้อความนี้หากเป็นวันประจำเดือน
               <div className="period-info-days">
                 ประจำเดือนจะมาอีก: {formatThaiDate(nextPeriodDate)}
               </div>
             )}
-            {nextPeriodDate && (
+            {nextPeriodDate && !isPeriodDay && ( // ไม่แสดงจำนวนวันหากเป็นวันประจำเดือน
               <div className="period-info-days">
                 จากวันนี้ถึงวันที่ประจำเดือนจะมาอีก เป็นเวลา: {calculateDaysUntilNextPeriod()} วัน
               </div>
